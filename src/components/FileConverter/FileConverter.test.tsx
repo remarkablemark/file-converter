@@ -120,6 +120,23 @@ describe('FileConverter component', () => {
     const button = screen.getByRole('button', { name: /cancel/i });
     expect(button).toBeEnabled();
     expect(button).toHaveTextContent('Cancel');
+    expect(button.className).toContain('bg-red-600');
+  });
+
+  it('disables cancel button while ffmpeg is loading', () => {
+    vi.mocked(useConverter).mockReturnValue(
+      createMockConverter({
+        file: new File([], 'x.mp3', { type: 'audio/mpeg' }),
+        category: 'audio',
+        outputFormat: 'mp3',
+        status: 'loading',
+      }),
+    );
+
+    render(<FileConverter />);
+
+    const button = screen.getByRole('button', { name: /cancel/i });
+    expect(button).toBeDisabled();
   });
 
   it('calls cancel when the cancel button is clicked', async () => {

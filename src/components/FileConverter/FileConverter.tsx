@@ -128,8 +128,15 @@ export function FileConverter() {
               </div>
 
               <button
-                className="w-full cursor-pointer rounded-md bg-slate-800 px-4 py-2 font-medium text-white shadow-xs transition-colors hover:bg-slate-700 focus:ring-2 focus:ring-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-100"
-                disabled={!isBusy && !converter.outputFormat}
+                className={
+                  isBusy
+                    ? 'w-full cursor-pointer rounded-md bg-red-600 px-4 py-2 font-medium text-white shadow-xs transition-colors hover:bg-red-500 focus:ring-2 focus:ring-red-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50'
+                    : 'w-full cursor-pointer rounded-md bg-slate-800 px-4 py-2 font-medium text-white shadow-xs transition-colors hover:bg-slate-700 focus:ring-2 focus:ring-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-100'
+                }
+                disabled={
+                  (isBusy && converter.status === 'loading') ||
+                  (!isBusy && !converter.outputFormat)
+                }
                 onClick={() => {
                   if (isBusy) {
                     converter.cancel();
