@@ -29,6 +29,7 @@ function createMockConverter(
     setOutputFilename: vi.fn(),
     updateOptions: vi.fn(),
     convert: vi.fn(),
+    cancel: vi.fn(),
     download: vi.fn(),
     ...overrides,
   };
@@ -105,7 +106,7 @@ describe('FileConverter component', () => {
     expect(screen.getByText('Original')).toBeInTheDocument();
   });
 
-  it('disables the convert button while busy', () => {
+  it('shows cancel button while busy', () => {
     vi.mocked(useConverter).mockReturnValue(
       createMockConverter({
         file: new File([], 'x.mp3', { type: 'audio/mpeg' }),
@@ -116,24 +117,43 @@ describe('FileConverter component', () => {
 
     render(<FileConverter />);
 
-    expect(screen.getByRole('button', { name: /converting/i })).toBeDisabled();
+    const button = screen.getByRole('button', { name: /cancel/i });
+    expect(button).toBeEnabled();
+    expect(button).toHaveTextContent('Cancel');
   });
 
-  it('shows loading text while ffmpeg is loading', () => {
+  it('calls cancel when the cancel button is clicked', async () => {
+    const user = userEvent.setup();
+    const cancel = vi.fn();
+
     vi.mocked(useConverter).mockReturnValue(
       createMockConverter({
         file: new File([], 'x.mp3', { type: 'audio/mpeg' }),
         category: 'audio',
         outputFormat: 'mp3',
-        status: 'loading',
+        status: 'converting',
+        cancel,
       }),
     );
 
     render(<FileConverter />);
 
-    expect(
-      screen.getByRole('button', { name: /loading ffmpeg/i }),
-    ).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: /cancel/i }));
+    expect(cancel).toHaveBeenCalled();
+  });
+
+  it('disables the convert button when no output format is selected', () => {
+    vi.mocked(useConverter).mockReturnValue(
+      createMockConverter({
+        file: new File([], 'x.mp3', { type: 'audio/mpeg' }),
+        category: 'audio',
+        status: 'idle',
+      }),
+    );
+
+    render(<FileConverter />);
+
+    expect(screen.getByRole('button', { name: /convert$/i })).toBeDisabled();
   });
 
   it('warns about large files', () => {

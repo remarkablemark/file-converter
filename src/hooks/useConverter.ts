@@ -44,6 +44,7 @@ export interface UseConverterResult {
     patch: Partial<ConversionOptions[T]>,
   ) => void;
   convert: () => Promise<void>;
+  cancel: () => void;
   download: () => void;
 }
 
@@ -171,6 +172,10 @@ export function useConverter(): UseConverterResult {
     }));
   }
 
+  function cancel() {
+    ffmpeg.cancel();
+  }
+
   async function convert() {
     if (!selectedFile || !category || !outputFormat) {
       setError('Please select a file and output format');
@@ -178,7 +183,6 @@ export function useConverter(): UseConverterResult {
       return;
     }
 
-    setStatus('loading');
     setError(null);
     ffmpeg.resetError();
 
@@ -190,6 +194,9 @@ export function useConverter(): UseConverterResult {
     });
 
     try {
+      if (!ffmpeg.loaded) {
+        setStatus('loading');
+      }
       await ffmpeg.load();
       setStatus('converting');
 
@@ -205,6 +212,12 @@ export function useConverter(): UseConverterResult {
       setOutputUrl(createFileUrl(blob));
       setStatus('done');
     } catch (err) {
+      if (err instanceof Error && err.message === 'Conversion cancelled') {
+        setStatus('idle');
+        setError(null);
+        return;
+      }
+
       setStatus('error');
       /* v8 ignore start */
       setError(err instanceof Error ? err.message : 'Conversion failed');
@@ -241,6 +254,7 @@ export function useConverter(): UseConverterResult {
     setOutputFilename: updateOutputFilename,
     updateOptions,
     convert,
+    cancel,
     download,
   };
 }

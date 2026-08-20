@@ -96,6 +96,10 @@ function TestComponent() {
         Convert
       </button>
 
+      <button onClick={converter.cancel} type="button">
+        Cancel
+      </button>
+
       <button onClick={converter.download} type="button">
         Download
       </button>
@@ -162,8 +166,10 @@ describe('useConverter hook', () => {
     readFile: ReturnType<typeof vi.fn>;
     terminate: ReturnType<typeof vi.fn>;
   };
+  let execReject: ((reason: Error) => void) | null = null;
 
   beforeEach(() => {
+    execReject = null;
     mockFFmpeg = {
       loaded: false,
       on: vi.fn(),
@@ -174,7 +180,11 @@ describe('useConverter hook', () => {
       exec: vi.fn(() => Promise.resolve(0)),
       writeFile: vi.fn(() => Promise.resolve(true)),
       readFile: vi.fn(() => Promise.resolve(new Uint8Array([4, 5, 6]))),
-      terminate: vi.fn(),
+      terminate: vi.fn(() => {
+        mockFFmpeg.loaded = false;
+        execReject?.(new Error('terminated'));
+        execReject = null;
+      }),
     };
     vi.mocked(FFmpeg).mockImplementation(function mockFFmpegConstructor() {
       return mockFFmpeg as unknown as FFmpeg;
@@ -290,6 +300,31 @@ describe('useConverter hook', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Status')).toHaveTextContent('done');
     });
+  });
+
+  it('cancels a conversion and returns to idle', async () => {
+    const user = userEvent.setup();
+    mockFFmpeg.exec = vi.fn(() => {
+      return new Promise((_resolve, reject) => {
+        execReject = reject;
+      });
+    });
+
+    render(<TestComponent />);
+
+    await user.click(screen.getByRole('button', { name: /set video/i }));
+    await user.click(screen.getByRole('button', { name: /convert/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Status')).toHaveTextContent('converting');
+    });
+
+    await user.click(screen.getByRole('button', { name: /cancel/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Status')).toHaveTextContent('idle');
+    });
+    expect(screen.getByLabelText('Error')).toHaveTextContent('no-error');
   });
 
   it('reports conversion failures', async () => {

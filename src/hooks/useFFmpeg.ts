@@ -23,6 +23,7 @@ export interface UseFFmpegResult {
     outputName: string,
     args: string[],
   ) => Promise<Uint8Array>;
+  cancel: () => void;
   resetError: () => void;
 }
 
@@ -136,6 +137,12 @@ export function useFFmpeg(): UseFFmpegResult {
       setStatus('idle');
       return data;
     } catch (err) {
+      if (!ffmpegRef.current) {
+        setStatus('idle');
+        setError(null);
+        throw new Error('Conversion cancelled', { cause: err });
+      }
+
       setStatus('error');
       /* v8 ignore start */
       const message = err instanceof Error ? err.message : 'Conversion failed';
@@ -143,6 +150,16 @@ export function useFFmpeg(): UseFFmpegResult {
       setError(message);
       throw new Error(message, { cause: err });
     }
+  }
+
+  function cancel() {
+    ffmpegRef.current?.terminate();
+    ffmpegRef.current = null;
+    loadErrorRef.current = null;
+    setLoaded(false);
+    setStatus('idle');
+    setProgress(0);
+    setError(null);
   }
 
   useEffect(() => {
@@ -160,6 +177,7 @@ export function useFFmpeg(): UseFFmpegResult {
     error,
     load,
     convert,
+    cancel,
     resetError,
   };
 }

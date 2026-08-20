@@ -71,6 +71,10 @@ function TestComponent({ file = defaultFile }: TestComponentProps) {
         Convert
       </button>
 
+      <button onClick={ffmpeg.cancel} type="button">
+        Cancel
+      </button>
+
       <button onClick={ffmpeg.resetError} type="button">
         Reset
       </button>
@@ -82,6 +86,7 @@ describe('useFFmpeg hook', () => {
   let mockFFmpeg: MockFFmpeg;
   let progressCallback: ((payload: { progress: number }) => void) | null = null;
   let logCallback: ((payload: { message: string }) => void) | null = null;
+  let execReject: ((reason: Error) => void) | null = null;
 
   function createMockFFmpeg(overrides: Partial<MockFFmpeg> = {}): MockFFmpeg {
     return {
@@ -115,7 +120,10 @@ describe('useFFmpeg hook', () => {
       }),
       writeFile: vi.fn(() => Promise.resolve(true)),
       readFile: vi.fn(() => Promise.resolve(new Uint8Array([4, 5, 6]))),
-      terminate: vi.fn(),
+      terminate: vi.fn(() => {
+        execReject?.(new Error('terminated'));
+        execReject = null;
+      }),
       ...overrides,
     };
   }
@@ -123,6 +131,7 @@ describe('useFFmpeg hook', () => {
   beforeEach(() => {
     progressCallback = null;
     logCallback = null;
+    execReject = null;
     mockFFmpeg = createMockFFmpeg();
     vi.mocked(FFmpeg).mockImplementation(function mockFFmpegConstructor() {
       return mockFFmpeg as unknown as FFmpeg;
@@ -270,6 +279,31 @@ describe('useFFmpeg hook', () => {
         'Unexpected output data format',
       );
     });
+  });
+
+  it('cancels an in-progress conversion', async () => {
+    const user = userEvent.setup();
+    mockFFmpeg.exec = vi.fn(() => {
+      progressCallback?.({ progress: 0.5 });
+      return new Promise((_resolve, reject) => {
+        execReject = reject;
+      });
+    });
+
+    render(<TestComponent />);
+    await user.click(screen.getByRole('button', { name: /convert/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Converting')).toHaveTextContent('true');
+    });
+
+    await user.click(screen.getByRole('button', { name: /cancel/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Converting')).toHaveTextContent('false');
+    });
+    expect(screen.getByLabelText('Error')).toHaveTextContent('no-error');
+    expect(mockFFmpeg.terminate).toHaveBeenCalled();
   });
 
   it('throws when ffmpeg remains unloaded', async () => {
