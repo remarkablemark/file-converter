@@ -1,7 +1,7 @@
 {
-  "name": "Vite React Tailwind Template",
-  "short_name": "Vite React Tailwind Template",
-  "description": "Vite React Tailwind Template",
+  "name": "File Converter",
+  "short_name": "File Converter",
+  "description": "📁 File converter that converts files in the browser using FFmpeg WebAssembly.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

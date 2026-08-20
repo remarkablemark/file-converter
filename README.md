@@ -1,18 +1,20 @@
-# vite-react-tailwind-template
+# File Converter
 
-[![build](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/build.yml)
-[![test](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/test.yml/badge.svg)](https://github.com/remarkablemark/vite-react-tailwind-template/actions/workflows/test.yml)
+[![build](https://github.com/remarkablemark/file-converter/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablemark/file-converter/actions/workflows/build.yml)
+[![test](https://github.com/remarkablemark/file-converter/actions/workflows/test.yml/badge.svg)](https://github.com/remarkablemark/file-converter/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/remarkablemark/file-converter/graph/badge.svg?token=u7WVFjdSD3)](https://codecov.io/gh/remarkablemark/file-converter)
 
-⚡ Vite React Tailwind Template
+📁 File converter that converts files in the browser using FFmpeg WebAssembly:
+
+- [File Converter](https://remarkablemark.org/file-converter/)
 
 ## Install
 
 Clone the repository:
 
 ```sh
-git clone https://github.com/remarkablemark/vite-react-tailwind-template.git
-cd vite-react-tailwind-template
+git clone https://github.com/remarkablemark/file-converter.git
+cd file-converter
 ```
 
 Install the dependencies:
