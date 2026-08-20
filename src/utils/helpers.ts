@@ -198,6 +198,10 @@ export function buildVideoArgs(
       args.push('-loop', '0');
     }
   } else {
+    if (outputFormat === 'webm') {
+      args.push('-c:v', 'libvpx', '-deadline', 'good', '-cpu-used', '5');
+    }
+
     args.push('-crf', String(options.quality));
 
     if (!options.preserveAudio) {

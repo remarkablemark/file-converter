@@ -210,6 +210,22 @@ describe('helpers', () => {
       expect(args).toContain('-loop');
       expect(args).toContain('0');
     });
+
+    it('uses VP8 with performance flags for webm', () => {
+      const args = buildFFmpegArgs('input.mp4', 'webm', 'video', baseOptions);
+      expect(args).toEqual([
+        '-i',
+        'input.mp4',
+        '-c:v',
+        'libvpx',
+        '-deadline',
+        'good',
+        '-cpu-used',
+        '5',
+        '-crf',
+        String(baseOptions.video.quality),
+      ]);
+    });
   });
 
   describe('getInputName', () => {

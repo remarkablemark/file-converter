@@ -81,14 +81,26 @@ function TestComponent({ file = defaultFile }: TestComponentProps) {
 describe('useFFmpeg hook', () => {
   let mockFFmpeg: MockFFmpeg;
   let progressCallback: ((payload: { progress: number }) => void) | null = null;
+  let logCallback: ((payload: { message: string }) => void) | null = null;
 
   function createMockFFmpeg(overrides: Partial<MockFFmpeg> = {}): MockFFmpeg {
     return {
       loaded: false,
       on: vi.fn(
-        (event: string, callback: (payload: { progress: number }) => void) => {
+        (
+          event: string,
+          callback:
+            | ((payload: { progress: number }) => void)
+            | ((payload: { message: string }) => void),
+        ) => {
           if (event === 'progress') {
-            progressCallback = callback;
+            progressCallback = callback as (payload: {
+              progress: number;
+            }) => void;
+          }
+
+          if (event === 'log') {
+            logCallback = callback as (payload: { message: string }) => void;
           }
         },
       ),
@@ -110,6 +122,7 @@ describe('useFFmpeg hook', () => {
 
   beforeEach(() => {
     progressCallback = null;
+    logCallback = null;
     mockFFmpeg = createMockFFmpeg();
     vi.mocked(FFmpeg).mockImplementation(function mockFFmpegConstructor() {
       return mockFFmpeg as unknown as FFmpeg;
@@ -136,6 +149,23 @@ describe('useFFmpeg hook', () => {
       expect(screen.getByLabelText('Loaded')).toHaveTextContent('true');
     });
     expect(screen.getByLabelText('Loading')).toHaveTextContent('false');
+  });
+
+  it('forwards ffmpeg log messages to the console', async () => {
+    const user = userEvent.setup();
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(vi.fn());
+
+    render(<TestComponent />);
+    await user.click(screen.getByRole('button', { name: /load/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Loaded')).toHaveTextContent('true');
+    });
+
+    logCallback?.({ message: 'ffmpeg log message' });
+    expect(consoleSpy).toHaveBeenCalledWith('ffmpeg log message');
+
+    consoleSpy.mockRestore();
   });
 
   it('skips loading if already loaded', async () => {

@@ -59,6 +59,12 @@ export function useFFmpeg(): UseFFmpegResult {
       /* v8 ignore stop */
 
       const ffmpeg = new FFmpeg();
+
+      ffmpeg.on('log', ({ message }) => {
+        // eslint-disable-next-line no-console
+        console.log(message);
+      });
+
       ffmpeg.on('progress', ({ progress: value }) => {
         setProgress(value);
       });
