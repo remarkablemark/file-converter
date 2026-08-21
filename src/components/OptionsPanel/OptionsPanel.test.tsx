@@ -282,4 +282,275 @@ describe('OptionsPanel component', () => {
     expect(onChange).toHaveBeenCalledWith('image', { width: undefined });
     expect(onChange).toHaveBeenCalledWith('image', { height: undefined });
   });
+
+  it('toggles preserve aspect ratio checkbox', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+
+    render(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={defaultOptions}
+        outputFormat="png"
+      />,
+    );
+
+    await user.click(screen.getByLabelText(/preserve aspect ratio/i));
+
+    expect(onChange).toHaveBeenCalledWith('image', {
+      preserveAspectRatio: false,
+    });
+  });
+
+  it('updates height proportionally when preserve aspect ratio is enabled', () => {
+    const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      image: {
+        ...defaultOptions.image,
+        width: 800,
+        height: 600,
+        originalWidth: 800,
+        originalHeight: 600,
+        preserveAspectRatio: true,
+      },
+    };
+
+    render(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={options}
+        outputFormat="png"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/width/i), {
+      target: { value: '400' },
+    });
+
+    expect(onChange).toHaveBeenCalledWith('image', {
+      width: 400,
+      height: 300,
+    });
+  });
+
+  it('updates width proportionally when preserve aspect ratio is enabled', () => {
+    const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      video: {
+        ...defaultOptions.video,
+        width: 1920,
+        height: 1080,
+        originalWidth: 1920,
+        originalHeight: 1080,
+        preserveAspectRatio: true,
+      },
+    };
+
+    render(
+      <OptionsPanel
+        category="video"
+        onChange={onChange}
+        options={options}
+        outputFormat="mp4"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/height/i), {
+      target: { value: '540' },
+    });
+
+    expect(onChange).toHaveBeenCalledWith('video', {
+      height: 540,
+      width: 960,
+    });
+  });
+
+  it('does not link dimensions when preserve aspect ratio is disabled', () => {
+    const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      image: {
+        ...defaultOptions.image,
+        width: 800,
+        height: 600,
+        preserveAspectRatio: false,
+      },
+    };
+
+    render(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={options}
+        outputFormat="png"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/width/i), {
+      target: { value: '400' },
+    });
+
+    expect(onChange).toHaveBeenCalledWith('image', { width: 400 });
+  });
+
+  it('updates image height and linked width when preserve aspect ratio is enabled', () => {
+    const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      image: {
+        ...defaultOptions.image,
+        width: 800,
+        height: 600,
+        originalWidth: 800,
+        originalHeight: 600,
+        preserveAspectRatio: true,
+      },
+    };
+
+    render(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={options}
+        outputFormat="png"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/height/i), {
+      target: { value: '300' },
+    });
+
+    expect(onChange).toHaveBeenCalledWith('image', {
+      height: 300,
+      width: 400,
+    });
+  });
+
+  it('updates video width and linked height when preserve aspect ratio is enabled', () => {
+    const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      video: {
+        ...defaultOptions.video,
+        width: 1920,
+        height: 1080,
+        originalWidth: 1920,
+        originalHeight: 1080,
+        preserveAspectRatio: true,
+      },
+    };
+
+    render(
+      <OptionsPanel
+        category="video"
+        onChange={onChange}
+        options={options}
+        outputFormat="mp4"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/width/i), {
+      target: { value: '960' },
+    });
+
+    expect(onChange).toHaveBeenCalledWith('video', {
+      width: 960,
+      height: 540,
+    });
+  });
+
+  it('toggles preserve aspect ratio checkbox for video', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+
+    render(
+      <OptionsPanel
+        category="video"
+        onChange={onChange}
+        options={defaultOptions}
+        outputFormat="mp4"
+      />,
+    );
+
+    await user.click(screen.getByLabelText(/preserve aspect ratio/i));
+
+    expect(onChange).toHaveBeenCalledWith('video', {
+      preserveAspectRatio: false,
+    });
+  });
+
+  it('maintains correct ratio across sequential width changes', () => {
+    const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      image: {
+        ...defaultOptions.image,
+        width: 800,
+        height: 600,
+        originalWidth: 800,
+        originalHeight: 600,
+        preserveAspectRatio: true,
+      },
+    };
+
+    const { rerender } = render(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={options}
+        outputFormat="png"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/width/i), {
+      target: { value: '4' },
+    });
+
+    let lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+    expect(lastCall).toEqual(['image', { width: 4, height: 3 }]);
+
+    const updatedOptions = {
+      ...options,
+      image: { ...options.image, width: 4, height: 3 },
+    };
+    rerender(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={updatedOptions}
+        outputFormat="png"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/width/i), {
+      target: { value: '40' },
+    });
+
+    lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+    expect(lastCall).toEqual(['image', { width: 40, height: 30 }]);
+
+    const updatedOptions2 = {
+      ...options,
+      image: { ...options.image, width: 40, height: 30 },
+    };
+    rerender(
+      <OptionsPanel
+        category="image"
+        onChange={onChange}
+        options={updatedOptions2}
+        outputFormat="png"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/width/i), {
+      target: { value: '400' },
+    });
+
+    lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+    expect(lastCall).toEqual(['image', { width: 400, height: 300 }]);
+  });
 });

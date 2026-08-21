@@ -87,6 +87,8 @@ export function useConverter(): UseConverterResult {
           ...previous[categoryKey],
           height: dimensions.height,
           width: dimensions.width,
+          originalHeight: dimensions.height,
+          originalWidth: dimensions.width,
         },
       }));
     }

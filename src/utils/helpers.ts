@@ -243,12 +243,14 @@ export function buildFFmpegArgs(
 export function getDefaultOptions(): ConversionOptions {
   return {
     image: {
+      preserveAspectRatio: true,
       fit: 'contain',
       quality: 80,
       preserveTransparency: true,
       background: '#ffffff',
     },
     video: {
+      preserveAspectRatio: true,
       fit: 'contain',
       quality: 23,
       preserveAudio: true,

@@ -36,33 +36,79 @@ function ImageSection({
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-        Width (px)
-        <input
-          className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-          disabled={disabled}
-          min={1}
-          onChange={(event) => {
-            onChange({ width: parseOptionalInt(event.target.value) });
-          }}
-          type="number"
-          value={options.width ?? ''}
-        />
-      </label>
+      <div className="flex flex-col gap-4 sm:col-span-2 sm:flex-row sm:items-end">
+        <label className="block flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+          Width (px)
+          <input
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            disabled={disabled}
+            min={1}
+            onChange={(event) => {
+              const newWidth = parseOptionalInt(event.target.value);
+              if (
+                options.preserveAspectRatio &&
+                newWidth &&
+                options.originalWidth &&
+                options.originalHeight
+              ) {
+                onChange({
+                  height: Math.round(
+                    (newWidth / options.originalWidth) * options.originalHeight,
+                  ),
+                  width: newWidth,
+                });
+              } else {
+                onChange({ width: newWidth });
+              }
+            }}
+            type="number"
+            value={options.width ?? ''}
+          />
+        </label>
 
-      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-        Height (px)
-        <input
-          className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-          disabled={disabled}
-          min={1}
-          onChange={(event) => {
-            onChange({ height: parseOptionalInt(event.target.value) });
-          }}
-          type="number"
-          value={options.height ?? ''}
-        />
-      </label>
+        <label className="block flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+          Height (px)
+          <input
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            disabled={disabled}
+            min={1}
+            onChange={(event) => {
+              const newHeight = parseOptionalInt(event.target.value);
+              if (
+                options.preserveAspectRatio &&
+                newHeight &&
+                options.originalWidth &&
+                options.originalHeight
+              ) {
+                onChange({
+                  height: newHeight,
+                  width: Math.round(
+                    (newHeight / options.originalHeight) *
+                      options.originalWidth,
+                  ),
+                });
+              } else {
+                onChange({ height: newHeight });
+              }
+            }}
+            type="number"
+            value={options.height ?? ''}
+          />
+        </label>
+
+        <label className="flex items-center gap-2 pb-2 text-sm font-medium whitespace-nowrap text-slate-700 dark:text-slate-200">
+          <input
+            checked={options.preserveAspectRatio}
+            className="rounded border-slate-300 text-slate-600 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={disabled}
+            onChange={(event) => {
+              onChange({ preserveAspectRatio: event.target.checked });
+            }}
+            type="checkbox"
+          />
+          Preserve aspect ratio
+        </label>
+      </div>
 
       <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
         Fit
@@ -141,33 +187,79 @@ function VideoSection({
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-        Width (px)
-        <input
-          className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-          disabled={disabled}
-          min={1}
-          onChange={(event) => {
-            onChange({ width: parseOptionalInt(event.target.value) });
-          }}
-          type="number"
-          value={options.width ?? ''}
-        />
-      </label>
+      <div className="flex flex-col gap-4 sm:col-span-2 sm:flex-row sm:items-end">
+        <label className="block flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+          Width (px)
+          <input
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            disabled={disabled}
+            min={1}
+            onChange={(event) => {
+              const newWidth = parseOptionalInt(event.target.value);
+              if (
+                options.preserveAspectRatio &&
+                newWidth &&
+                options.originalWidth &&
+                options.originalHeight
+              ) {
+                onChange({
+                  height: Math.round(
+                    (newWidth / options.originalWidth) * options.originalHeight,
+                  ),
+                  width: newWidth,
+                });
+              } else {
+                onChange({ width: newWidth });
+              }
+            }}
+            type="number"
+            value={options.width ?? ''}
+          />
+        </label>
 
-      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-        Height (px)
-        <input
-          className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-          disabled={disabled}
-          min={1}
-          onChange={(event) => {
-            onChange({ height: parseOptionalInt(event.target.value) });
-          }}
-          type="number"
-          value={options.height ?? ''}
-        />
-      </label>
+        <label className="block flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+          Height (px)
+          <input
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-xs focus:border-slate-500 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            disabled={disabled}
+            min={1}
+            onChange={(event) => {
+              const newHeight = parseOptionalInt(event.target.value);
+              if (
+                options.preserveAspectRatio &&
+                newHeight &&
+                options.originalWidth &&
+                options.originalHeight
+              ) {
+                onChange({
+                  height: newHeight,
+                  width: Math.round(
+                    (newHeight / options.originalHeight) *
+                      options.originalWidth,
+                  ),
+                });
+              } else {
+                onChange({ height: newHeight });
+              }
+            }}
+            type="number"
+            value={options.height ?? ''}
+          />
+        </label>
+
+        <label className="flex items-center gap-2 pb-2 text-sm font-medium whitespace-nowrap text-slate-700 dark:text-slate-200">
+          <input
+            checked={options.preserveAspectRatio}
+            className="rounded border-slate-300 text-slate-600 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={disabled}
+            onChange={(event) => {
+              onChange({ preserveAspectRatio: event.target.checked });
+            }}
+            type="checkbox"
+          />
+          Preserve aspect ratio
+        </label>
+      </div>
 
       <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
         Fit

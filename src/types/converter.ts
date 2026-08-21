@@ -3,6 +3,9 @@ import type { Category } from '../utils/constants';
 export interface ImageOptions {
   width?: number;
   height?: number;
+  originalWidth?: number;
+  originalHeight?: number;
+  preserveAspectRatio: boolean;
   fit: 'contain' | 'cover' | 'stretch' | 'force';
   quality: number;
   preserveTransparency: boolean;
@@ -12,6 +15,9 @@ export interface ImageOptions {
 export interface VideoOptions {
   width?: number;
   height?: number;
+  originalWidth?: number;
+  originalHeight?: number;
+  preserveAspectRatio: boolean;
   fit: 'contain' | 'cover' | 'stretch' | 'force';
   fps?: number;
   quality: number;
