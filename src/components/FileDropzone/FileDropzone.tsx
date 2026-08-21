@@ -61,15 +61,15 @@ export function FileDropzone({
     }
   }
 
+  const dropzoneStyling = dragActive
+    ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+    : disabled
+      ? 'cursor-not-allowed border-slate-300 opacity-50 dark:border-slate-600'
+      : 'cursor-pointer border-slate-300 hover:border-blue-500 hover:bg-blue-50 dark:border-slate-600 dark:hover:border-blue-400 dark:hover:bg-blue-900/30';
+
   return (
     <div
-      className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
-        dragActive
-          ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
-          : disabled
-            ? 'cursor-not-allowed border-slate-300 opacity-50 dark:border-slate-600'
-            : 'cursor-pointer border-slate-300 hover:border-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-400 dark:hover:bg-slate-800'
-      }`}
+      className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${dropzoneStyling}`}
       onClick={disabled ? undefined : handleClick}
       onKeyDown={disabled ? undefined : handleKeyDown}
       onDragEnter={disabled ? undefined : handleDragEnter}

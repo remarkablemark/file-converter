@@ -145,7 +145,7 @@ describe('FileDropzone component', () => {
 
     fireEvent.dragEnter(dropzone);
 
-    expect(dropzone.className).toContain('border-blue-500');
+    expect(dropzone.className).toContain('border-blue-500 bg-blue-50');
   });
 
   it('removes drag-active styling when a file is dragged away', () => {
@@ -155,7 +155,7 @@ describe('FileDropzone component', () => {
     fireEvent.dragEnter(dropzone);
     fireEvent.dragLeave(dropzone);
 
-    expect(dropzone.className).not.toContain('border-blue-500');
+    expect(dropzone.className).not.toContain('border-blue-500 bg-blue-50');
   });
 
   it('keeps drag-active styling on dragOver when already active', () => {
@@ -165,7 +165,7 @@ describe('FileDropzone component', () => {
     fireEvent.dragEnter(dropzone);
     fireEvent.dragOver(dropzone);
 
-    expect(dropzone.className).toContain('border-blue-500');
+    expect(dropzone.className).toContain('border-blue-500 bg-blue-50');
   });
 
   it('does not show drag-active styling when disabled', () => {
@@ -176,7 +176,7 @@ describe('FileDropzone component', () => {
 
     fireEvent.dragEnter(dropzone);
 
-    expect(dropzone.className).not.toContain('border-blue-500');
+    expect(dropzone.className).not.toContain('border-blue-500 bg-blue-50');
   });
 
   it('does not call onFileSelect for an empty file input change', async () => {
