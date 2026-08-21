@@ -23,7 +23,7 @@
 - **Preview** — native `<img>`, `<video>`, or `<audio>` preview of the input file
 - **Large file warning** — alerts when a file exceeds 100 MB
 - **Editable filename** — output filename is pre-filled and sanitized
-- **Dark mode** — full dark mode support via Tailwind `dark:` modifiers
+- **Dark mode** — full dark mode support
 - **Responsive** — mobile-first layout that adapts to desktop
 
 ## Supported Formats
