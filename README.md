@@ -4,9 +4,37 @@
 [![test](https://github.com/remarkablemark/file-converter/actions/workflows/test.yml/badge.svg)](https://github.com/remarkablemark/file-converter/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/remarkablemark/file-converter/graph/badge.svg?token=u7WVFjdSD3)](https://codecov.io/gh/remarkablemark/file-converter)
 
-📁 File converter that converts files in the browser using FFmpeg WebAssembly:
+📁 File converter that converts media and image files in the browser using FFmpeg WebAssembly. All processing happens client-side — no files are uploaded to a server.
 
 - [File Converter](https://remarkablemark.org/file-converter/)
+
+## Features
+
+- **Browser-based conversion** — powered by [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm); no server or upload required
+- **Drag-and-drop** — drop files directly or click to browse; visual feedback on hover and drag-over
+- **Auto-detection** — detects file category (image, video, audio) from MIME type and extension
+- **Format selection** — shows only compatible output formats for the detected category
+- **Advanced options** — category-aware controls:
+  - **Image**: dimensions, fit mode (contain, cover, stretch, force), quality, transparency preservation, background color
+  - **Video**: dimensions, fit mode, frame rate, CRF quality, audio preservation with bitrate, GIF loop toggle
+  - **Audio**: bitrate, sample rate, channels (mono/stereo)
+- **Progress indicator** — real-time progress bar during FFmpeg transcoding
+- **Cancel** — abort in-progress conversions
+- **Preview** — native `<img>`, `<video>`, or `<audio>` preview of the input file
+- **Large file warning** — alerts when a file exceeds 100 MB
+- **Editable filename** — output filename is pre-filled and sanitized
+- **Dark mode** — full dark mode support via Tailwind `dark:` modifiers
+- **Responsive** — mobile-first layout that adapts to desktop
+
+## Supported Formats
+
+| Category | Inputs                              | Outputs                        |
+| -------- | ----------------------------------- | ------------------------------ |
+| Image    | PNG, JPEG, WebP, GIF, BMP, ICO, SVG | PNG, JPEG, WebP, GIF, BMP, ICO |
+| Video    | MP4, WebM, MOV, AVI, MKV, GIF       | MP4, WebM, MOV, AVI, MKV, GIF  |
+| Audio    | MP3, WAV, OGG, AAC, FLAC, M4A       | MP3, WAV, OGG, AAC, FLAC, M4A  |
+
+> SVG inputs are rasterized to the chosen bitmap format.
 
 ## Install
 
@@ -23,13 +51,15 @@ Install the dependencies:
 npm install
 ```
 
-Copy the environment variables:
+## Environment Variables
+
+Update the environment variables:
 
 ```sh
 cp .env.example .env
 ```
 
-## Run
+Update the **Secrets** in the repository **Settings**.
 
 ## Available Scripts
 
@@ -57,7 +87,7 @@ Your app is ready to be deployed!
 
 ### `npm run lint`
 
-Checks code quality.
+Checks the code quality.
 
 ### `npm run lint:tsc`
 
@@ -65,11 +95,7 @@ Checks for type errors.
 
 ### `npm test`
 
-Runs tests.
-
-### `npm run test:ci`
-
-Runs tests with coverage.
+Runs the tests.
 
 ## License
 
