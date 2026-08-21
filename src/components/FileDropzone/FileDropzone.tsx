@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export interface FileDropzoneProps {
   onFileSelect: (file: File) => void;
@@ -10,6 +10,7 @@ export function FileDropzone({
   disabled = false,
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   function handleClick() {
     inputRef.current?.click();
@@ -32,12 +33,26 @@ export function FileDropzone({
     event.target.value = '';
   }
 
+  function handleDragEnter(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setDragActive(true);
+  }
+
   function handleDragOver(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
+    if (!dragActive) {
+      setDragActive(true);
+    }
+  }
+
+  function handleDragLeave(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setDragActive(false);
   }
 
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
+    setDragActive(false);
     const files = event.dataTransfer.files;
     const droppedFile = files.length > 0 ? files[0] : null;
 
@@ -48,14 +63,18 @@ export function FileDropzone({
 
   return (
     <div
-      className={`rounded-lg border-2 border-dashed border-slate-300 p-8 text-center transition-colors hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400 ${
-        disabled
-          ? 'cursor-not-allowed opacity-50'
-          : 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800'
+      className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+        dragActive
+          ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+          : disabled
+            ? 'cursor-not-allowed border-slate-300 opacity-50 dark:border-slate-600'
+            : 'cursor-pointer border-slate-300 hover:border-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-400 dark:hover:bg-slate-800'
       }`}
       onClick={disabled ? undefined : handleClick}
       onKeyDown={disabled ? undefined : handleKeyDown}
+      onDragEnter={disabled ? undefined : handleDragEnter}
       onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       onDrop={disabled ? undefined : handleDrop}
       role="button"
       tabIndex={disabled ? -1 : 0}

@@ -139,6 +139,46 @@ describe('FileDropzone component', () => {
     expect(onFileSelect).not.toHaveBeenCalled();
   });
 
+  it('shows drag-active styling when a file is dragged over', () => {
+    const { container } = render(<FileDropzone onFileSelect={vi.fn()} />);
+    const dropzone = container.firstChild as HTMLElement;
+
+    fireEvent.dragEnter(dropzone);
+
+    expect(dropzone.className).toContain('border-blue-500');
+  });
+
+  it('removes drag-active styling when a file is dragged away', () => {
+    const { container } = render(<FileDropzone onFileSelect={vi.fn()} />);
+    const dropzone = container.firstChild as HTMLElement;
+
+    fireEvent.dragEnter(dropzone);
+    fireEvent.dragLeave(dropzone);
+
+    expect(dropzone.className).not.toContain('border-blue-500');
+  });
+
+  it('keeps drag-active styling on dragOver when already active', () => {
+    const { container } = render(<FileDropzone onFileSelect={vi.fn()} />);
+    const dropzone = container.firstChild as HTMLElement;
+
+    fireEvent.dragEnter(dropzone);
+    fireEvent.dragOver(dropzone);
+
+    expect(dropzone.className).toContain('border-blue-500');
+  });
+
+  it('does not show drag-active styling when disabled', () => {
+    const { container } = render(
+      <FileDropzone disabled onFileSelect={vi.fn()} />,
+    );
+    const dropzone = container.firstChild as HTMLElement;
+
+    fireEvent.dragEnter(dropzone);
+
+    expect(dropzone.className).not.toContain('border-blue-500');
+  });
+
   it('does not call onFileSelect for an empty file input change', async () => {
     const user = userEvent.setup();
     const onFileSelect = vi.fn();
