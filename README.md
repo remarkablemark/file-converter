@@ -8,6 +8,8 @@
 
 - [File Converter](https://remarkablemark.org/file-converter/)
 
+Read the [blog post](https://remarkablemark.org/blog/2026/08/20/file-converter-ffmpeg-wasm/).
+
 ## Features
 
 - **Browser-based conversion** — powered by [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm); no server or upload required
