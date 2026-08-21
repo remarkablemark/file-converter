@@ -158,18 +158,20 @@ function ImageSection({
         Preserve transparency
       </label>
 
-      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-        Background
-        <input
-          className="mt-1 h-10 w-full cursor-pointer rounded-md border border-slate-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600"
-          disabled={disabled}
-          onChange={(event) => {
-            onChange({ background: event.target.value });
-          }}
-          type="color"
-          value={options.background}
-        />
-      </label>
+      {!options.preserveTransparency && (
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+          Background color
+          <input
+            className="mt-1 h-10 w-full cursor-pointer rounded-md border border-slate-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600"
+            disabled={disabled}
+            onChange={(event) => {
+              onChange({ background: event.target.value });
+            }}
+            type="color"
+            value={options.background}
+          />
+        </label>
+      )}
     </div>
   );
 }

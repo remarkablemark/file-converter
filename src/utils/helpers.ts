@@ -124,6 +124,36 @@ export function buildScaleFilter(
   }
 }
 
+export function buildFlattenFilterComplex(
+  width: number,
+  height: number,
+  fit: ImageOptions['fit'],
+  background: string,
+): string {
+  const bg = toFfmpegColor(background);
+
+  let imageChain: string;
+  let overlayPosition: string;
+
+  switch (fit) {
+    case 'contain':
+      imageChain = `scale=${String(width)}:${String(height)}:force_original_aspect_ratio=decrease`;
+      overlayPosition = '(main_w-overlay_w)/2:(main_h-overlay_h)/2';
+      break;
+    case 'cover':
+      imageChain = `scale=${String(width)}:${String(height)}:force_original_aspect_ratio=increase,crop=${String(width)}:${String(height)}`;
+      overlayPosition = '0:0';
+      break;
+    case 'stretch':
+    case 'force':
+    default:
+      imageChain = `scale=${String(width)}:${String(height)}`;
+      overlayPosition = '0:0';
+  }
+
+  return `color=c=${bg}:s=${String(width)}x${String(height)}[bg];[0:v]${imageChain}[img];[bg][img]overlay=${overlayPosition}:format=auto[outv]`;
+}
+
 export function mapImageQuality(quality: number): number {
   const clamped = Math.max(0, Math.min(100, quality));
   return Math.max(1, Math.round(31 - (clamped / 100) * 30));
@@ -159,15 +189,38 @@ export function buildImageArgs(
 ): string[] {
   const args: string[] = [];
 
-  const filter = buildScaleFilter(
-    options.width,
-    options.height,
-    options.fit,
-    options.background,
-  );
+  const canFlatten =
+    !options.preserveTransparency &&
+    Boolean(options.width) &&
+    Boolean(options.height);
 
-  if (filter) {
-    args.push('-vf', filter);
+  if (canFlatten && options.width && options.height) {
+    args.push(
+      '-filter_complex',
+      buildFlattenFilterComplex(
+        options.width,
+        options.height,
+        options.fit,
+        options.background,
+      ),
+      '-map',
+      '[outv]',
+      '-update',
+      '1',
+      '-frames:v',
+      '1',
+    );
+  } else {
+    const filter = buildScaleFilter(
+      options.width,
+      options.height,
+      options.fit,
+      options.background,
+    );
+
+    if (filter) {
+      args.push('-vf', filter);
+    }
   }
 
   if (['jpg', 'jpeg', 'webp', 'gif'].includes(outputFormat)) {

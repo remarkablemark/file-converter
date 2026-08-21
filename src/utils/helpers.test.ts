@@ -1,5 +1,6 @@
 import {
   buildFFmpegArgs,
+  buildFlattenFilterComplex,
   buildScaleFilter,
   changeExtension,
   createFileUrl,
@@ -281,6 +282,29 @@ describe('helpers', () => {
     });
   });
 
+  describe('buildFlattenFilterComplex', () => {
+    it('builds a centered overlay for contain fit', () => {
+      expect(buildFlattenFilterComplex(100, 100, 'contain', '#ffffff')).toBe(
+        'color=c=0xffffff:s=100x100[bg];[0:v]scale=100:100:force_original_aspect_ratio=decrease[img];[bg][img]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2:format=auto[outv]',
+      );
+    });
+
+    it('builds a top-left overlay for cover fit', () => {
+      expect(buildFlattenFilterComplex(100, 100, 'cover', '#ffffff')).toBe(
+        'color=c=0xffffff:s=100x100[bg];[0:v]scale=100:100:force_original_aspect_ratio=increase,crop=100:100[img];[bg][img]overlay=0:0:format=auto[outv]',
+      );
+    });
+
+    it('builds a top-left overlay for stretch and force fits', () => {
+      expect(buildFlattenFilterComplex(100, 100, 'stretch', '#ffffff')).toBe(
+        'color=c=0xffffff:s=100x100[bg];[0:v]scale=100:100[img];[bg][img]overlay=0:0:format=auto[outv]',
+      );
+      expect(buildFlattenFilterComplex(100, 100, 'force', '#ffffff')).toBe(
+        'color=c=0xffffff:s=100x100[bg];[0:v]scale=100:100[img];[bg][img]overlay=0:0:format=auto[outv]',
+      );
+    });
+  });
+
   describe('buildImageArgs', () => {
     it('skips filter and quality for png without dimensions', () => {
       const defaults = getDefaultOptions();
@@ -290,6 +314,71 @@ describe('helpers', () => {
       };
       const args = buildFFmpegArgs('input.png', 'png', 'image', options);
       expect(args).toEqual(['-i', 'input.png']);
+    });
+
+    it('uses filter_complex to flatten transparency onto the background color', () => {
+      const defaults = getDefaultOptions();
+      const options = {
+        ...defaults,
+        image: {
+          ...defaults.image,
+          width: 100,
+          height: 100,
+          fit: 'contain' as const,
+          background: '#ffffff',
+          preserveTransparency: false,
+        },
+      };
+      const args = buildFFmpegArgs('input.jpg', 'jpg', 'image', options);
+
+      expect(args).toEqual([
+        '-i',
+        'input.jpg',
+        '-filter_complex',
+        'color=c=0xffffff:s=100x100[bg];[0:v]scale=100:100:force_original_aspect_ratio=decrease[img];[bg][img]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2:format=auto[outv]',
+        '-map',
+        '[outv]',
+        '-update',
+        '1',
+        '-frames:v',
+        '1',
+        '-q:v',
+        String(mapImageQuality(80)),
+      ]);
+    });
+
+    it('falls back to -vf when preserving transparency', () => {
+      const defaults = getDefaultOptions();
+      const options = {
+        ...defaults,
+        image: {
+          ...defaults.image,
+          width: 100,
+          height: 100,
+          fit: 'contain' as const,
+          preserveTransparency: true,
+        },
+      };
+      const args = buildFFmpegArgs('input.png', 'png', 'image', options);
+
+      expect(args).not.toContain('-filter_complex');
+      expect(args).toContain('-vf');
+    });
+
+    it('falls back to -vf when dimensions are missing even without preserving transparency', () => {
+      const defaults = getDefaultOptions();
+      const options = {
+        ...defaults,
+        image: {
+          ...defaults.image,
+          width: undefined,
+          height: 100,
+          preserveTransparency: false,
+        },
+      };
+      const args = buildFFmpegArgs('input.jpg', 'jpg', 'image', options);
+
+      expect(args).not.toContain('-filter_complex');
     });
   });
 

@@ -130,12 +130,19 @@ describe('OptionsPanel component', () => {
   it('covers all image option controls', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
+    const options = {
+      ...defaultOptions,
+      image: {
+        ...defaultOptions.image,
+        preserveTransparency: false,
+      },
+    };
 
     render(
       <OptionsPanel
         category="image"
         onChange={onChange}
-        options={defaultOptions}
+        options={options}
         outputFormat="png"
       />,
     );
@@ -150,7 +157,7 @@ describe('OptionsPanel component', () => {
     fireEvent.change(screen.getByLabelText(/quality/i), {
       target: { value: '50' },
     });
-    fireEvent.change(screen.getByLabelText(/background/i), {
+    fireEvent.change(screen.getByLabelText(/background color/i), {
       target: { value: '#123456' },
     });
 
@@ -159,6 +166,40 @@ describe('OptionsPanel component', () => {
     expect(onChange).toHaveBeenCalledWith('image', { fit: 'contain' });
     expect(onChange).toHaveBeenCalledWith('image', { quality: 50 });
     expect(onChange).toHaveBeenCalledWith('image', { background: '#123456' });
+  });
+
+  it('hides background color when preserve transparency is enabled', () => {
+    render(
+      <OptionsPanel
+        category="image"
+        onChange={vi.fn()}
+        options={defaultOptions}
+        outputFormat="png"
+      />,
+    );
+
+    expect(screen.queryByLabelText(/background color/i)).toBeNull();
+  });
+
+  it('shows background color when preserve transparency is disabled', () => {
+    const options = {
+      ...defaultOptions,
+      image: {
+        ...defaultOptions.image,
+        preserveTransparency: false,
+      },
+    };
+
+    render(
+      <OptionsPanel
+        category="image"
+        onChange={vi.fn()}
+        options={options}
+        outputFormat="png"
+      />,
+    );
+
+    expect(screen.getByLabelText(/background color/i)).toBeInTheDocument();
   });
 
   it('covers all video option controls', async () => {
