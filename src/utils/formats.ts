@@ -29,6 +29,7 @@ const VIDEO_EXTENSIONS = new Set([
   'flv',
   'ogv',
   'm4v',
+  'gif',
 ]);
 
 const AUDIO_EXTENSIONS = new Set([
@@ -64,6 +65,7 @@ export const OUTPUT_FORMATS: OutputFormat[] = [
     category: 'video',
   },
   { value: 'gif', label: 'GIF', mimeType: 'image/gif', category: 'image' },
+  { value: 'gif', label: 'GIF', mimeType: 'image/gif', category: 'video' },
   { value: 'mp3', label: 'MP3', mimeType: 'audio/mpeg', category: 'audio' },
   { value: 'wav', label: 'WAV', mimeType: 'audio/wav', category: 'audio' },
   { value: 'ogg', label: 'OGG', mimeType: 'audio/ogg', category: 'audio' },

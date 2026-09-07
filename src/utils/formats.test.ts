@@ -39,6 +39,9 @@ describe('formats utilities', () => {
       expect(getCategory(new File([], 'song.mp3', { type: '' }))).toBe('audio');
       expect(getCategory(new File([], 'clip.avi', { type: '' }))).toBe('video');
       expect(getCategory(new File([], 'pic.bmp', { type: '' }))).toBe('image');
+      expect(getCategory(new File([], 'animation.gif', { type: '' }))).toBe(
+        'image',
+      );
     });
 
     it('returns null for unsupported files', () => {
@@ -53,6 +56,7 @@ describe('formats utilities', () => {
         true,
       );
       expect(videoFormats.map((format) => format.value)).toContain('mp4');
+      expect(videoFormats.map((format) => format.value)).toContain('gif');
     });
   });
 
